@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flujograma — Presupuesto y fondos</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        fontFamily: 'Segoe UI, system-ui, sans-serif',
+        fontSize: '14px',
+        primaryColor: '#e8dff5',
+        primaryBorderColor: '#7c5cbf',
+        primaryTextColor: '#1a1a2e',
+        lineColor: '#333',
+        secondaryColor: '#fff8e1',
+        tertiaryColor: '#f3f0ff'
+      },
+      flowchart: {
+        htmlLabels: true,
+        curve: 'basis',
+        padding: 16,
+        nodeSpacing: 40,
+        rankSpacing: 55
+      }
+    });
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f5f5f7;
+      color: #1a1a2e;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 1.5rem 2rem;
+    }
+    header h1 { margin: 0 0 0.35rem; font-size: 1.5rem; }
+    header p { margin: 0; color: #555; max-width: 900px; line-height: 1.5; }
+    main { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+    section {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+    section h2 {
+      margin: 0 0 0.25rem;
+      font-size: 1.15rem;
+      color: #5b3fa0;
+    }
+    section .subtitle {
+      margin: 0 0 1.25rem;
+      color: #666;
+      font-size: 0.95rem;
+    }
+    .mermaid { display: flex; justify-content: center; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid #999;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Flujograma: gestión de presupuesto y fondos</h1>
+    <p>
+      Proceso completo desde la asignación de presupuesto por gerencias hasta el cierre,
+      con los dos caminos: <strong>fondo común de proyectos</strong> y <strong>caja chica</strong>.
+    </p>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. Asignación inicial y bifurcación</h2>
+      <p class="subtitle">Gerencias asignan presupuesto a todos los fondos; el usuario elige el tipo al solicitar.</p>
+      <pre class="mermaid">
+flowchart TB
+    subgraph GERENCIAS["GERENCIAS"]
+        G1["Asignar presupuesto<br/>a todos los fondos"]
+        G2["Fondo común<br/>de proyectos"]
+        G3["Cajas chicas<br/>(3 fondos)"]
+        G1 --> G2
+        G1 --> G3
+    end
+
+    subgraph USUARIO_INICIO["USUARIO / TÉCNICO"]
+        U1["Solicitar presupuesto"]
+        U2{"¿De qué fondo<br/>solicita?"}
+        U1 --> U2
+    end
+
+    G2 -.->|"disponible"| U2
+    G3 -.->|"disponible"| U2
+
+    U2 -->|"Fondo común"| FC_INICIO["CAMINO A:<br/>Fondo común"]
+    U2 -->|"Caja chica"| CC_INICIO["CAMINO B:<br/>Caja chica"]
+
+    style GERENCIAS fill:#fff8e1,stroke:#c9a227
+    style USUARIO_INICIO fill:#fff8e1,stroke:#c9a227
+    style FC_INICIO fill:#e8dff5,stroke:#7c5cbf
+    style CC_INICIO fill:#e8dff5,stroke:#7c5cbf
+      </pre>
+    </section>
+
+    <section>
+      <h2>2. Camino A — Fondo común de proyectos</h2>
+      <p class="subtitle">Solicitud → aprobación del jefe → fondo común → facturas → verificación → contabilidad → cierre y ajuste de saldo.</p>
+      <pre class="mermaid">
+flowchart TB
+    subgraph USUARIO_A["USUARIO / TÉCNICO"]
+        A1["Solicitar presupuesto<br/>(fondo común)"]
+        A2["Estado: PENDIENTE"]
+        A3["Realizar viaje<br/>o actividad"]
+        A4["Registrar facturas<br/>en el sistema"]
+        A5["Entregar facturas<br/>físicas a la cajera"]
+        A1 --> A2
+        A3 --> A4
+        A4 --> A5
+    end
+
+    subgraph JEFE_A["JEFE INMEDIATO"]
+        J1["Ver solicitud"]
+        J2{"¿Cliente tiene<br/>fondos?"}
+        J3["Rechazar solicitud"]
+        J4["Aprobar solicitud<br/>(genera PI)"]
+        J1 --> J2
+        J2 -->|"No"| J3
+        J2 -->|"Sí"| J4
+    end
+
+    subgraph CAJERA_A["CAJERA"]
+        C1["Recibir PI por correo"]
+        C2["Cobrar presupuesto"]
+        C3{"Tipo de<br/>entrega"}
+        C4["Efectivo"]
+        C5["Transferencia"]
+        C6["Plata entregada<br/>al usuario"]
+        C7["Verificar facturas<br/>con el sistema"]
+        C8{"¿Saldo<br/>final?"}
+        C9["Recibir sobrante<br/>→ saldo a favor<br/>del proyecto"]
+        C10["Registrar faltante<br/>(se puso más dinero)"]
+        C11["Enviar a contabilidad<br/>para cerrar solicitud"]
+        C1 --> C2 --> C3
+        C3 --> C4 --> C6
+        C3 --> C5 --> C6
+        C7 --> C8
+        C8 -->|"Sobrante"| C9 --> C11
+        C8 -->|"Faltante"| C10 --> C11
+        C8 -->|"Cuadrado"| C11
+    end
+
+    subgraph CONTABILIDAD_A["CONTABILIDAD"]
+        CO1["Recibir resumen<br/>de facturas"]
+        CO2["Cerrar solicitud"]
+        CO1 --> CO2
+    end
+
+    A2 --> J1
+    J4 --> C1
+    J4 --> A3
+    C6 --> A3
+    A5 --> C7
+    A4 -.->|"resumen"| CO1
+    C11 --> CO2
+
+    style USUARIO_A fill:#fff8e1,stroke:#c9a227
+    style JEFE_A fill:#fff8e1,stroke:#c9a227
+    style CAJERA_A fill:#fff8e1,stroke:#c9a227
+    style CONTABILIDAD_A fill:#fff8e1,stroke:#c9a227
+      </pre>
+    </section>
+
+    <section>
+      <h2>3. Camino B — Caja chica</h2>
+      <p class="subtitle">Solicitud → evaluación de la cajera → compras → entrega de facturas y sobrante → registro en sistema.</p>
+      <pre class="mermaid">
+flowchart TB
+    subgraph USUARIO_B["USUARIO / TÉCNICO"]
+        B1["Solicitar presupuesto<br/>(caja chica)"]
+        B2["Realizar compras"]
+        B3["Entregar facturas<br/>y sobrante de dinero<br/>a la cajera"]
+        B1 --> B2 --> B3
+    end
+
+    subgraph CAJERA_B["CAJERA"]
+        CB1["Preguntar para qué es<br/>y de qué caja pide"]
+        CB2{"¿Acepta<br/>la solicitud?"}
+        CB3["Negar solicitud"]
+        CB4["Consultar con<br/>su jefe inmediato"]
+        CB5{"¿Jefe<br/>aprueba?"}
+        CB6["Entregar dinero<br/>de la caja chica"]
+        CB7["Registrar facturas<br/>y sobrante en el sistema"]
+        CB8["Cierre de solicitud<br/>en sistema"]
+        CB1 --> CB2
+        CB2 -->|"No"| CB3
+        CB2 -->|"Consultar jefe"| CB4 --> CB5
+        CB5 -->|"No"| CB3
+        CB5 -->|"Sí"| CB6
+        CB2 -->|"Sí"| CB6
+        CB6 --> B2
+        B3 --> CB7 --> CB8
+    end
+
+    subgraph JEFE_CAJERA["JEFE DE CAJERA"]
+        JC1["Evaluar solicitud"]
+        JC1 --> CB5
+    end
+
+    CB4 --> JC1
+
+    style USUARIO_B fill:#fff8e1,stroke:#c9a227
+    style CAJERA_B fill:#fff8e1,stroke:#c9a227
+    style JEFE_CAJERA fill:#fff8e1,stroke:#c9a227
+      </pre>
+    </section>
+
+    <section>
+      <h2>4. Vista resumida — ambos caminos</h2>
+      <p class="subtitle">Comparación rápida de los dos flujos desde la solicitud hasta el cierre.</p>
+      <pre class="mermaid">
+flowchart LR
+    subgraph INICIO["INICIO"]
+        I1["Gerencias asignan<br/>presupuesto"]
+        I2["Usuario solicita"]
+        I1 --> I2
+    end
+
+    subgraph CAMINO_A["CAMINO A — Fondo común"]
+        direction TB
+        A_S["Solicitud"]
+        A_J["Jefe aprueba"]
+        A_F["Fondo común<br/>+ cobro cajera"]
+        A_R["Registrar facturas<br/>→ Contabilidad"]
+        A_V["Cajera verifica<br/>y liquida"]
+        A_C["Cierre + ajuste<br/>de saldo"]
+        A_S --> A_J --> A_F --> A_R --> A_V --> A_C
+    end
+
+    subgraph CAMINO_B["CAMINO B — Caja chica"]
+        direction TB
+        B_S["Solicitud"]
+        B_C["Cajera evalúa<br/>(o consulta jefe)"]
+        B_E["Entrega dinero"]
+        B_P["Compras"]
+        B_R["Facturas + sobrante<br/>→ Cajera registra"]
+        B_S --> B_C --> B_E --> B_P --> B_R
+    end
+
+    I2 -->|"Fondo común"| A_S
+    I2 -->|"Caja chica"| B_S
+
+    style INICIO fill:#fff8e1,stroke:#c9a227
+    style CAMINO_A fill:#e8dff5,stroke:#7c5cbf
+    style CAMINO_B fill:#e8dff5,stroke:#7c5cbf
+      </pre>
+
+      <div class="legend">
+        <span><span class="swatch" style="background:#fff8e1"></span> Carriles por rol</span>
+        <span><span class="swatch" style="background:#e8dff5"></span> Caminos / decisiones</span>
+        <span>◇ Rombo = decisión</span>
+        <span>□ Rectángulo = acción</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
