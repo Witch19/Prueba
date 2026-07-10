@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flujograma — Presupuesto y fondos</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        fontFamily: 'Arial, Helvetica, sans-serif',
+        fontSize: '13px',
+        primaryColor: '#e8dff5',
+        primaryBorderColor: '#6b4fa3',
+        primaryTextColor: '#111',
+        lineColor: '#333'
+      },
+      flowchart: { htmlLabels: true, curve: 'basis', padding: 12 }
+    });
+    window.addEventListener('load', () => {
+      setTimeout(() => { document.body.dataset.ready = 'true'; }, 2500);
+    });
+  </script>
+  <style>
+    @page { size: A4 landscape; margin: 12mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px 28px 32px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #fff;
+      color: #111;
+      width: 1400px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      color: #4a2f85;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      color: #444;
+      margin: 0 0 20px;
+      font-size: 13px;
+    }
+    .section {
+      margin-bottom: 22px;
+      page-break-inside: avoid;
+    }
+    .section h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #5b3fa0;
+      border-bottom: 2px solid #e8dff5;
+      padding-bottom: 4px;
+    }
+    .mermaid { display: flex; justify-content: center; }
+    .footer {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>Flujograma: Gestión de presupuesto y fondos</h1>
+  <p class="subtitle">Solicitud — aprobación — cobro — facturas — liquidación | Fondo común y Caja chica</p>
+
+  <div class="section">
+    <h2>1. Inicio: asignación de presupuesto y bifurcación</h2>
+    <pre class="mermaid">
+flowchart TB
+    subgraph GERENCIAS["GERENCIAS"]
+        G1["Asignar presupuesto<br/>a todos los fondos"]
+        G2["Fondo común<br/>de proyectos"]
+        G3["Cajas chicas<br/>(3 fondos)"]
+        G1 --> G2
+        G1 --> G3
+    end
+
+    subgraph USUARIO["USUARIO / TÉCNICO"]
+        U1["Solicitar presupuesto"]
+        U2{"¿De qué fondo<br/>solicita?"}
+        U1 --> U2
+    end
+
+    G2 -.-> U2
+    G3 -.-> U2
+    U2 -->|"Fondo común"| FC["CAMINO A"]
+    U2 -->|"Caja chica"| CC["CAMINO B"]
+
+    style GERENCIAS fill:#fff8e1,stroke:#c9a227
+    style USUARIO fill:#fff8e1,stroke:#c9a227
+    style FC fill:#e8dff5,stroke:#7c5cbf
+    style CC fill:#e8dff5,stroke:#7c5cbf
+    </pre>
+  </div>
+
+  <div class="section">
+    <h2>2. Camino A — Fondo común de proyectos</h2>
+    <pre class="mermaid">
+flowchart TB
+    subgraph USUARIO_A["USUARIO / TÉCNICO"]
+        A1["Solicitar presupuesto"]
+        A2["Estado: PENDIENTE"]
+        A3["Realizar viaje o actividad"]
+        A4["Registrar facturas en sistema"]
+        A5["Entregar facturas físicas a cajera"]
+        A1 --> A2 --> A3 --> A4 --> A5
+    end
+
+    subgraph JEFE["JEFE INMEDIATO"]
+        J1["Ver solicitud"]
+        J2{"¿Cliente tiene fondos?"}
+        J3["Rechazar"]
+        J4["Aprobar - genera PI"]
+        J1 --> J2
+        J2 -->|No| J3
+        J2 -->|Sí| J4
+    end
+
+    subgraph CAJERA_A["CAJERA"]
+        C1["Recibir PI por correo"]
+        C2["Cobrar presupuesto"]
+        C3{"Tipo entrega"}
+        C4["Efectivo"]
+        C5["Transferencia"]
+        C6["Plata entregada"]
+        C7["Verificar facturas en sistema"]
+        C8{"¿Saldo?"}
+        C9["Sobrante → saldo a favor del proyecto"]
+        C10["Faltante → registrar dinero adicional"]
+        C11["Enviar a contabilidad"]
+        C1 --> C2 --> C3
+        C3 --> C4 --> C6
+        C3 --> C5 --> C6
+        C7 --> C8
+        C8 -->|Sobrante| C9 --> C11
+        C8 -->|Faltante| C10 --> C11
+        C8 -->|Cuadrado| C11
+    end
+
+    subgraph CONTAB["CONTABILIDAD"]
+        CO1["Recibir resumen de facturas"]
+        CO2["Cerrar solicitud"]
+        CO1 --> CO2
+    end
+
+    A2 --> J1
+    J4 --> C1
+    J4 --> A3
+    C6 --> A3
+    A5 --> C7
+    A4 -.-> CO1
+    C11 --> CO2
+
+    style USUARIO_A fill:#fff8e1,stroke:#c9a227
+    style JEFE fill:#fff8e1,stroke:#c9a227
+    style CAJERA_A fill:#fff8e1,stroke:#c9a227
+    style CONTAB fill:#fff8e1,stroke:#c9a227
+    </pre>
+  </div>
+
+  <div class="section">
+    <h2>3. Camino B — Caja chica</h2>
+    <pre class="mermaid">
+flowchart TB
+    subgraph USUARIO_B["USUARIO / TÉCNICO"]
+        B1["Solicitar presupuesto caja chica"]
+        B2["Realizar compras"]
+        B3["Entregar facturas y sobrante a cajera"]
+        B1 --> B2 --> B3
+    end
+
+    subgraph CAJERA_B["CAJERA"]
+        CB1["Preguntar para qué es y de qué caja"]
+        CB2{"¿Acepta?"}
+        CB3["Negar solicitud"]
+        CB4["Consultar jefe inmediato"]
+        CB5{"¿Jefe aprueba?"}
+        CB6["Entregar dinero de caja chica"]
+        CB7["Registrar en sistema"]
+        CB8["Cierre de solicitud"]
+        CB1 --> CB2
+        CB2 -->|No| CB3
+        CB2 -->|Consultar| CB4 --> CB5
+        CB5 -->|No| CB3
+        CB5 -->|Sí| CB6
+        CB2 -->|Sí| CB6
+        CB6 --> B2
+        B3 --> CB7 --> CB8
+    end
+
+    subgraph JEFE_C["JEFE DE CAJERA"]
+        JC1["Evaluar solicitud"]
+        JC1 --> CB5
+    end
+
+    CB4 --> JC1
+
+    style USUARIO_B fill:#fff8e1,stroke:#c9a227
+    style CAJERA_B fill:#fff8e1,stroke:#c9a227
+    style JEFE_C fill:#fff8e1,stroke:#c9a227
+    </pre>
+  </div>
+
+  <p class="footer">Documento generado para presentación interna</p>
+</body>
+</html>
