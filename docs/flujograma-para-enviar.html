@@ -19,7 +19,7 @@
       flowchart: { htmlLabels: true, curve: 'basis', padding: 12 }
     });
     window.addEventListener('load', () => {
-      setTimeout(() => { document.body.dataset.ready = 'true'; }, 2500);
+      setTimeout(() => { document.body.dataset.ready = 'true'; }, 2800);
     });
   </script>
   <style>
@@ -67,7 +67,7 @@
 </head>
 <body>
   <h1>Flujograma: Gestión de presupuesto y fondos</h1>
-  <p class="subtitle">Solicitud — aprobación — cobro — facturas — liquidación | Fondo común y Caja chica</p>
+  <p class="subtitle">Fondo común · Caja chica · Compra/gasto importante previsto (factura → pago)</p>
 
   <div class="section">
     <h2>1. Inicio: asignación de presupuesto y bifurcación</h2>
@@ -81,9 +81,10 @@ flowchart TB
         G1 --> G3
     end
 
-    subgraph USUARIO["USUARIO / TÉCNICO"]
-        U1["Solicitar presupuesto"]
-        U2{"¿De qué fondo<br/>solicita?"}
+    subgraph ENTRADA["TIPOS DE SOLICITUD"]
+        U1["Solicitar anticipo<br/>de presupuesto"]
+        U2{"¿De qué fondo?"}
+        U3["Compra o gasto<br/>importante previsto"]
         U1 --> U2
     end
 
@@ -91,11 +92,13 @@ flowchart TB
     G3 -.-> U2
     U2 -->|"Fondo común"| FC["CAMINO A"]
     U2 -->|"Caja chica"| CC["CAMINO B"]
+    U3 --> CG["CAMINO C"]
 
     style GERENCIAS fill:#fff8e1,stroke:#c9a227
-    style USUARIO fill:#fff8e1,stroke:#c9a227
+    style ENTRADA fill:#fff8e1,stroke:#c9a227
     style FC fill:#e8dff5,stroke:#7c5cbf
     style CC fill:#e8dff5,stroke:#7c5cbf
+    style CG fill:#d4edda,stroke:#2e7d32
     </pre>
   </div>
 
@@ -207,6 +210,51 @@ flowchart TB
     </pre>
   </div>
 
-  <p class="footer">Documento generado para presentación interna</p>
+  <div class="section">
+    <h2>4. Camino C — Compra o gasto importante previsto</h2>
+    <pre class="mermaid">
+flowchart TB
+    subgraph USUARIO_C["USUARIO / TÉCNICO"]
+        X1["Compra o gasto<br/>importante previsto"]
+        X2["Recibir / cargar factura"]
+        X1 --> X2
+    end
+
+    subgraph JEFE_C2["JEFE INMEDIATO"]
+        X3["Recibir factura"]
+        X4{"¿Aprueba<br/>el gasto?"}
+        X5["Rechazar"]
+        X6["Enviar a caja"]
+        X3 --> X4
+        X4 -->|No| X5
+        X4 -->|Sí| X6
+    end
+
+    subgraph JEFA_CAJA["JEFA INMEDIATA DE CAJERA"]
+        X7["Recibir gasto en caja"]
+        X8["Escoger fondo que<br/>debe cubrir el gasto"]
+        X9["Asignar fondo"]
+        X7 --> X8 --> X9
+    end
+
+    subgraph CAJERA_C["CAJERA"]
+        X10["Recibir PIN para pago"]
+        X11["Pagar factura / gasto"]
+        X12["Registrar pago<br/>y cerrar"]
+        X10 --> X11 --> X12
+    end
+
+    X2 --> X3
+    X6 --> X7
+    X9 --> X10
+
+    style USUARIO_C fill:#fff8e1,stroke:#c9a227
+    style JEFE_C2 fill:#fff8e1,stroke:#c9a227
+    style JEFA_CAJA fill:#fff8e1,stroke:#c9a227
+    style CAJERA_C fill:#fff8e1,stroke:#c9a227
+    </pre>
+  </div>
+
+  <p class="footer">Documento generado para presentación interna · Caminos A, B y C</p>
 </body>
 </html>
