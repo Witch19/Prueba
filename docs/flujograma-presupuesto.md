@@ -1,8 +1,9 @@
 # Flujograma: gestión de presupuesto y fondos
 
-Proceso completo con los dos caminos: **fondo común de proyectos** y **caja chica**.
+Proceso completo con tres caminos: **fondo común de proyectos**, **caja chica** y **compra/gasto importante previsto**.
 
 > Para ver el diagrama renderizado, abrir `flujograma-presupuesto.html` en el navegador.
+> Imagen lista para enviar: `flujograma-presupuesto.png` · PDF: `flujograma-presupuesto.pdf`
 
 ---
 
@@ -18,9 +19,10 @@ flowchart TB
         G1 --> G3
     end
 
-    subgraph USUARIO["USUARIO / TÉCNICO"]
-        U1["Solicitar presupuesto"]
-        U2{"¿De qué fondo solicita?"}
+    subgraph ENTRADA["TIPOS DE SOLICITUD"]
+        U1["Solicitar anticipo de presupuesto"]
+        U2{"¿De qué fondo?"}
+        U3["Compra o gasto importante previsto"]
         U1 --> U2
     end
 
@@ -28,6 +30,7 @@ flowchart TB
     G3 -.-> U2
     U2 -->|"Fondo común"| FC["CAMINO A"]
     U2 -->|"Caja chica"| CC["CAMINO B"]
+    U3 --> CG["CAMINO C"]
 ```
 
 ---
@@ -91,13 +94,42 @@ flowchart TB
 
 ---
 
+## 4. Camino C — Compra o gasto importante previsto
+
+Nace de una compra o gasto importante **ya previsto**. No se pide anticipo: se parte de la **factura**.
+
+| Paso | Rol | Acción |
+|------|-----|--------|
+| 1 | Usuario | Tiene compra/gasto importante previsto y obtiene la factura |
+| 2 | Jefe inmediato | Recibe la factura y aprueba o rechaza el gasto |
+| 3 | Caja | Recibe el gasto aprobado |
+| 4 | Jefa inmediata de cajera | Escoge de qué fondo debe cubrirse el gasto |
+| 5 | Cajera | Recibe el PIN y realiza el pago |
+| 6 | Cajera | Registra el pago y cierra |
+
+```mermaid
+flowchart TB
+    C1["Compra/gasto importante previsto"] --> C2["Factura"]
+    C2 --> C3["Jefe inmediato recibe factura"]
+    C3 --> C4{"¿Aprueba?"}
+    C4 -->|"No"| C5["Rechazar"]
+    C4 -->|"Sí"| C6["Enviar a caja"]
+    C6 --> C7["Jefa de cajera escoge el fondo"]
+    C7 --> C8["Asignar fondo"]
+    C8 --> C9["Cajera recibe PIN"]
+    C9 --> C10["Pagar factura"]
+    C10 --> C11["Registrar y cerrar"]
+```
+
+---
+
 ## Roles involucrados
 
-| Rol | Camino A (Fondo común) | Camino B (Caja chica) |
-|-----|------------------------|------------------------|
-| Gerencias | Asignan presupuesto a fondos | Asignan presupuesto a fondos |
-| Usuario / Técnico | Solicita, registra y entrega facturas | Solicita, compra y entrega facturas |
-| Jefe inmediato | Aprueba solicitud del usuario | — |
-| Cajera | Cobra, verifica y liquida | Evalúa, entrega dinero y registra |
-| Jefe de cajera | — | Aprueba si la cajera consulta |
-| Contabilidad | Recibe resumen y cierra solicitud | — |
+| Rol | Camino A | Camino B | Camino C |
+|-----|----------|----------|----------|
+| Gerencias | Asignan presupuesto | Asignan presupuesto | Fondos disponibles para cubrir |
+| Usuario / Técnico | Solicita anticipo y factura al final | Solicita anticipo y factura al final | Inicia con factura del gasto |
+| Jefe inmediato | Aprueba solicitud | — | Aprueba el gasto/factura |
+| Cajera | Cobra, verifica y liquida | Evalúa, entrega dinero y registra | Recibe PIN y paga |
+| Jefa / Jefe de cajera | — | Aprueba si la cajera consulta | Escoge el fondo que cubre el gasto |
+| Contabilidad | Recibe resumen y cierra | — | — |

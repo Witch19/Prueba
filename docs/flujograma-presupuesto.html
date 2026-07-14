@@ -88,14 +88,15 @@
     <h1>Flujograma: gestión de presupuesto y fondos</h1>
     <p>
       Proceso completo desde la asignación de presupuesto por gerencias hasta el cierre,
-      con los dos caminos: <strong>fondo común de proyectos</strong> y <strong>caja chica</strong>.
+      con tres caminos: <strong>fondo común de proyectos</strong>, <strong>caja chica</strong>
+      y <strong>compra/gasto importante previsto</strong>.
     </p>
   </header>
 
   <main>
     <section>
       <h2>1. Asignación inicial y bifurcación</h2>
-      <p class="subtitle">Gerencias asignan presupuesto a todos los fondos; el usuario elige el tipo al solicitar.</p>
+      <p class="subtitle">Gerencias asignan presupuesto a todos los fondos. Hay anticipo (A/B) o gasto previsto con factura (C).</p>
       <pre class="mermaid">
 flowchart TB
     subgraph GERENCIAS["GERENCIAS"]
@@ -106,9 +107,10 @@ flowchart TB
         G1 --> G3
     end
 
-    subgraph USUARIO_INICIO["USUARIO / TÉCNICO"]
-        U1["Solicitar presupuesto"]
+    subgraph ENTRADA["TIPOS DE SOLICITUD"]
+        U1["Solicitar anticipo<br/>de presupuesto"]
         U2{"¿De qué fondo<br/>solicita?"}
+        U3["Compra o gasto<br/>importante previsto"]
         U1 --> U2
     end
 
@@ -117,11 +119,13 @@ flowchart TB
 
     U2 -->|"Fondo común"| FC_INICIO["CAMINO A:<br/>Fondo común"]
     U2 -->|"Caja chica"| CC_INICIO["CAMINO B:<br/>Caja chica"]
+    U3 --> CG_INICIO["CAMINO C:<br/>Gasto previsto"]
 
     style GERENCIAS fill:#fff8e1,stroke:#c9a227
-    style USUARIO_INICIO fill:#fff8e1,stroke:#c9a227
+    style ENTRADA fill:#fff8e1,stroke:#c9a227
     style FC_INICIO fill:#e8dff5,stroke:#7c5cbf
     style CC_INICIO fill:#e8dff5,stroke:#7c5cbf
+    style CG_INICIO fill:#d4edda,stroke:#2e7d32
       </pre>
     </section>
 
@@ -238,48 +242,102 @@ flowchart TB
     </section>
 
     <section>
-      <h2>4. Vista resumida — ambos caminos</h2>
-      <p class="subtitle">Comparación rápida de los dos flujos desde la solicitud hasta el cierre.</p>
+      <h2>4. Camino C — Compra o gasto importante previsto</h2>
+      <p class="subtitle">Factura → jefe inmediato → caja → jefa de cajera elige el fondo → PIN → pago.</p>
+      <pre class="mermaid">
+flowchart TB
+    subgraph USUARIO_C["USUARIO / TÉCNICO"]
+        X1["Compra o gasto<br/>importante previsto"]
+        X2["Recibir / cargar factura"]
+        X1 --> X2
+    end
+
+    subgraph JEFE_C["JEFE INMEDIATO"]
+        X3["Recibir factura"]
+        X4{"¿Aprueba<br/>el gasto?"}
+        X5["Rechazar"]
+        X6["Enviar a caja"]
+        X3 --> X4
+        X4 -->|"No"| X5
+        X4 -->|"Sí"| X6
+    end
+
+    subgraph JEFA_CAJA["JEFA INMEDIATA DE CAJERA"]
+        X7["Recibir gasto en caja"]
+        X8["Escoger fondo que<br/>debe cubrir el gasto"]
+        X9["Asignar fondo seleccionado"]
+        X7 --> X8 --> X9
+    end
+
+    subgraph CAJERA_C["CAJERA"]
+        X10["Recibir PIN para pago"]
+        X11["Pagar factura / gasto"]
+        X12["Registrar pago<br/>y cerrar"]
+        X10 --> X11 --> X12
+    end
+
+    X2 --> X3
+    X6 --> X7
+    X9 --> X10
+
+    style USUARIO_C fill:#fff8e1,stroke:#c9a227
+    style JEFE_C fill:#fff8e1,stroke:#c9a227
+    style JEFA_CAJA fill:#fff8e1,stroke:#c9a227
+    style CAJERA_C fill:#fff8e1,stroke:#c9a227
+      </pre>
+    </section>
+
+    <section>
+      <h2>5. Vista resumida — tres caminos</h2>
+      <p class="subtitle">Comparación rápida de los tres flujos desde el inicio hasta el cierre.</p>
       <pre class="mermaid">
 flowchart LR
     subgraph INICIO["INICIO"]
         I1["Gerencias asignan<br/>presupuesto"]
-        I2["Usuario solicita"]
-        I1 --> I2
     end
 
     subgraph CAMINO_A["CAMINO A — Fondo común"]
         direction TB
-        A_S["Solicitud"]
+        A_S["Solicitud anticipo"]
         A_J["Jefe aprueba"]
-        A_F["Fondo común<br/>+ cobro cajera"]
-        A_R["Registrar facturas<br/>→ Contabilidad"]
-        A_V["Cajera verifica<br/>y liquida"]
-        A_C["Cierre + ajuste<br/>de saldo"]
-        A_S --> A_J --> A_F --> A_R --> A_V --> A_C
+        A_F["Cobro cajera"]
+        A_R["Facturas → Contabilidad"]
+        A_C["Liquidación + cierre"]
+        A_S --> A_J --> A_F --> A_R --> A_C
     end
 
     subgraph CAMINO_B["CAMINO B — Caja chica"]
         direction TB
         B_S["Solicitud"]
-        B_C["Cajera evalúa<br/>(o consulta jefe)"]
+        B_C["Cajera evalúa"]
         B_E["Entrega dinero"]
-        B_P["Compras"]
-        B_R["Facturas + sobrante<br/>→ Cajera registra"]
-        B_S --> B_C --> B_E --> B_P --> B_R
+        B_R["Facturas + sobrante"]
+        B_S --> B_C --> B_E --> B_R
     end
 
-    I2 -->|"Fondo común"| A_S
-    I2 -->|"Caja chica"| B_S
+    subgraph CAMINO_C["CAMINO C — Gasto previsto"]
+        direction TB
+        C_F["Factura"]
+        C_J["Jefe aprueba"]
+        C_G["Jefa caja elige fondo"]
+        C_P["PIN → Cajera paga"]
+        C_F --> C_J --> C_G --> C_P
+    end
+
+    I1 --> A_S
+    I1 --> B_S
+    I1 --> C_F
 
     style INICIO fill:#fff8e1,stroke:#c9a227
     style CAMINO_A fill:#e8dff5,stroke:#7c5cbf
     style CAMINO_B fill:#e8dff5,stroke:#7c5cbf
+    style CAMINO_C fill:#d4edda,stroke:#2e7d32
       </pre>
 
       <div class="legend">
         <span><span class="swatch" style="background:#fff8e1"></span> Carriles por rol</span>
-        <span><span class="swatch" style="background:#e8dff5"></span> Caminos / decisiones</span>
+        <span><span class="swatch" style="background:#e8dff5"></span> Caminos A / B</span>
+        <span><span class="swatch" style="background:#d4edda"></span> Camino C</span>
         <span>◇ Rombo = decisión</span>
         <span>□ Rectángulo = acción</span>
       </div>
